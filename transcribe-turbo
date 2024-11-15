@@ -1,0 +1,4 @@
+#!/bin/bash
+
+whisper "$@" --model "turbo" --fp16 False --output_format "vtt"
+
