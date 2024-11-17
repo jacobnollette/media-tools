@@ -1,0 +1,3 @@
+#!/bin/bash
+
+yt-download-audio-mp3 "$@" && transcribe-turbo && transcribe-summary
