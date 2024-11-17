@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Define the root directory to search recursively (current directory by default)
+input_dir="${1:-.}"
+
+split_lines="1000"
+
+model="llama3.2:latest"
+prompt_stage_1="Please summarize this section"
+prompt_stage_2="Please summarize these summaries"
+
+
+_process () {
+  item="$@"
+  item_base_nameT=$(basename -- "$item" | sed 's/\.vtt//')
+
+  tmppath=$(mktemp -d)
+  cp $item $tmppath
+  cd $tmppath
+  split -l $split_lines split
+
+  for split in split*; do
+    echo $prompt_stage_1 > prompt
+    cat $split >> prompt
+    touch $split-summary.md
+    cat prompt | ollama run $model > "$split-summary.md"
+  done
+
+  : > prompt
+  echo $prompt_stage_2 > prompt
+  cat *summary.md >> prompt
+  cat promt | ollama run $model > $item_base_name-summary.md
+  mv $item_base_name-summary.md $start_path
+
+}
+
+# Find all .vtt files in the specified input directory and its subdirectories
+start_path=$(pwd)
+for i in *.vtt; do
+  _process "$i"
+done
