@@ -3,7 +3,7 @@
 # Define the root directory to search recursively (current directory by default)
 input_dir="${1:-.}"
 
-split_lines="1250"
+split_lines="550"
 
 model="llama3.2:latest"
 #model="llama3.2:8g-c16g"
