@@ -6,8 +6,8 @@ input_dir="${1:-.}"
 split_lines="550"
 split_overlap="50"
 
-#model="llama3.2:latest"
-model="llama3.2:8g-c16g"
+model="llama3.2:latest"
+#model="llama3.2:8g-c16g"
 
 prompt_stage_1="Please summarize the following excerpt from the transcript into a concise, point-by-point summary. Focus on capturing the key points and main ideas presented, while maintaining the original sequence of information. Ensure that the summary is clear and linear, preserving the flow of the content without adding personal interpretations or omitting essential details.
 
