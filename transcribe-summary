@@ -77,7 +77,7 @@ _process () {
 
   cp "$item_base_name-summary.md" "$start_path"
 
-  cd $start_path
+  cd "$start_path"
 
 }
 
