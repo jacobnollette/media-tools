@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# Define the root directory to search recursively (current directory by default)
+input_dir="${1:-.}"
+split_lines="550"
+split_overlap="50"
+
+model="llama3.2:latest"
+
+prompt_stage_1="Please summarize the following excerpt from the transcript into a concise, point-by-point summary. Focus on capturing the key points and main ideas presented, while maintaining the original sequence of information. Ensure that the summary is clear and linear, preserving the flow of the content without adding personal interpretations or omitting essential details.
+
+Transcript Excerpt:
+"
+prompt_stage_2="Please take the following collection of smaller summaries and create a comprehensive, linear, point-by-point summary. Present each section in the original sequence, ensuring that each point flows smoothly to the next with appropriate transitional phrases or sentences. The goal is to maintain a cohesive and neutral documentation of the content, preserving the integrity of each section while enhancing the overall narrative flow. Do not condense or omit any key information. Instead, connect the sections to provide a seamless and fluid reading experience.
+Text:
+"
+prompt_stage_3="Convert the list of key points into paragraphs that flow naturally, without numbering.
+
+Text:
+"
+
+
+
+
+
+_process () {
+  item="$@"
+
+    _inputFileNoEXT="${item%.*}"
+    
+    if [[ ! -f "${_inputFileNoEXT}-summary.md" ]]; then
+      # Touch the placeholder
+      touch ${_inputFileNoEXT}-summary.md
+
+
+      item_base_name=$(basename -- "$item" | sed 's/\.vtt//')
+
+      tmppath=$(mktemp -d)
+      echo $tmppath
+      cp "$item" $tmppath
+      cd $tmppath
+
+      file="$(ls)"
+      total_lines=$(wc -l < "$file")
+
+      start_line=1
+      chunk_num=1
+
+      while [ $start_line -le $total_lines ]; do
+        end_line=$((start_line + split_lines -1))
+        if [ $end_line -gt $total_lines ]; then
+          end_line=$total_lines
+        fi
+
+        # Extract the chunk with overlap
+        sed -n "${start_line},${end_line}p" "$file" > "split$(printf "%02d" $chunk_num)"
+    
+        # Check if we've reached the end of the file
+        if [ $end_line -eq $total_lines ]; then
+          break
+        fi
+
+        # Update start_line for the next chunk
+        start_line=$((end_line - split_overlap +1))
+        chunk_num=$((chunk_num+1))
+      done
+
+      for split in split*; do
+        echo "$prompt_stage_1" > prompt
+        cat "$split" >> prompt
+        touch "$split-summary.md"
+        cat prompt | ollama run $model > "$split-summary.md"
+      done
+
+      : > prompt
+      echo "$prompt_stage_2" > prompt
+      for summary in *summary.md; do
+        cat "$summary" >> prompt
+      done
+      cat prompt | ollama run $model > "$item_base_name-summary-stage2.md"
+
+      echo "$prompt_stage_3" > prompt
+      cat "$item_base_name-summary-stage2.md" >> prompt
+      cat prompt | ollama run $model > "$item_base_name-summary.md"
+
+
+      cp "$item_base_name-summary.md" "$start_path"
+
+      cd "$start_path"
+
+
+
+      # Use Ollama to convert the HTML content to Markdown and save to .md file
+      cat /tmp/prompt-press | ollama run llama3.2:8g-c32g  > "${_inputFileNoEXT}-summary.md"
+    
+      # signal complete message
+      echo "Pressed $item to ${_inputFileNoEXT}-sumary.md"
+    
+    fi
+}
+
+start_path="$(pwd)"
+for i in $(find "$@" -type f | grep -E "\.html$|\.htm")
+do
+  _process $i
+done
