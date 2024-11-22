@@ -68,13 +68,13 @@ _process () {
   for summary in *summary.md; do
     cat "$summary" >> prompt
   done
-  cat prompt | ollama run $model > "$item_base_name-summary-stage2.md"
+  cat prompt | ollama run $model > "$item_base_name-summary-stage.cmd"
 
   echo "$prompt_stage_3" > prompt
-  cat "$item_base_name-summary-stage2.md" >> prompt
+  cat "$item_base_name-summary-stage.md" >> prompt
   cat prompt | ollama run $model > "$item_base_name-summary.md"
 
-
+  cp "$item_base_name-summary-stage.md" "$start_path"
   cp "$item_base_name-summary.md" "$start_path"
 
   cd "$start_path"
