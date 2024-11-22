@@ -10,14 +10,12 @@ model="llama3.2:latest"
 #model="llama3.2:8g-c16g"
 
 prompt_stage_1="Please summarize the following excerpt from the transcript into a concise, point-by-point summary. Focus on capturing the key points and main ideas presented, while maintaining the original sequence of information. Ensure that the summary is clear and linear, preserving the flow of the content without adding personal interpretations or omitting essential details.
-
 Transcript Excerpt:
 "
 prompt_stage_2="Please take the following collection of smaller summaries and create a comprehensive, linear, point-by-point summary. Present each section in the original sequence, ensuring that each point flows smoothly to the next with appropriate transitional phrases or sentences. The goal is to maintain a cohesive and neutral documentation of the content, preserving the integrity of each section while enhancing the overall narrative flow. Do not condense or omit any key information. Instead, connect the sections to provide a seamless and fluid reading experience.
 Text:
 "
-prompt_stage_3="Convert the list of key points into paragraphs that flow naturally, without numbering.
-
+prompt_stage_3="Convert the list of key points into paragraphs that flow naturally, without numbering. Ensure that the information is presented in a cohesive and logical manner, maintaining the original sequence of ideas. Focus on creating a well-structured narrative that captures the essence of the content while providing a smooth reading experience. Avoid repeating information or introducing new details that were not present in the original text.
 Text:
 "
 
